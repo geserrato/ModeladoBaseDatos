@@ -1,4 +1,5 @@
-﻿using EFCorePeliculas.Entidades;
+﻿using System.Reflection;
+using EFCorePeliculas.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCorePeliculas;
@@ -9,30 +10,27 @@ public class ApplicationDbContext : DbContext
     {
     }
 
+    /*
+     * override el siguinte metodo podemos agregar convenciones a nuestro mapeo de entidades
+     * indicando que alguna propiedad sea de determinado tipo por ejemplo. Aquellas entidades
+     * de tipo DateTime, le estaremos indiciando que sean de solo tipo Date
+     */
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveColumnType("date");
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<Genero>().HasKey(prop => prop.Identificador);
-        modelBuilder.Entity<Genero>().Property(prop => prop.Nombre)
-            .HasMaxLength(150)
-            .IsRequired();
-
-        modelBuilder.Entity<Actor>().Property(prop => prop.Nombre)
-            .HasMaxLength(150)
-            .IsRequired();
-        modelBuilder.Entity<Actor>().Property(P => P.FechaNacimiento)
-            .HasColumnType("date");
-
-        modelBuilder.Entity<Cine>().Property(P => P.Nombre)
-            .HasMaxLength(150)
-            .IsRequired();
-
-        modelBuilder.Entity<Cine>().Property(p => p.Precio)
-            .HasPrecision(precision: 9, scale: 2);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
     public DbSet<Genero> Generos { get; set; }
     public DbSet<Actor> Actors { get; set; }
     public DbSet<Cine> Cines { get; set; }
+    public DbSet<Pelicula> Peliculas { get; set; }
+    public DbSet<CineOferta> CineOfertas { get; set; }
+    public DbSet<SalaDeCine> SalaDeCines { get; set; }
+    public DbSet<PeliculaActor> PeliculaActores { get; set; }
 }
